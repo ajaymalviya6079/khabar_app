@@ -8,13 +8,12 @@ import 'package:khabar/routes/app_pages.dart';
 import 'package:khabar/routes/screen_bindings.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
-
+import 'app_data/app_lifecycle.dart';
 import 'app_data/data/local_data.dart';
 
 
 
 void main() async {
-
   runApp(const MyApp());
   await MySharedPref.init();
 }
@@ -27,10 +26,22 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late AppLifecycleManager _appLifecycleManager;
+
+  @override
+  void initState() {
+    super.initState();
+    _appLifecycleManager = AppLifecycleManager();
+  }
+
+  @override
+  void dispose() {
+    _appLifecycleManager.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    /// Check if the app is running on the web
     if (kIsWeb) {
       return GetMaterialApp(
         debugShowCheckedModeBanner: false,
@@ -47,7 +58,6 @@ class _MyAppState extends State<MyApp> {
         ),
       );
     } else {
-      /// Check if the app is running on iOS or any other platform
       final isIOS = Platform.isIOS;
       if (isIOS) {
         return GetCupertinoApp(

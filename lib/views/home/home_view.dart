@@ -38,6 +38,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                     controller: _searchController,
                     onSubmitted: (value) {
                       controller.searchNews(value);
+                      controller.update();
                     },
                     decoration: const InputDecoration(
                       hintText: 'Search news...',
@@ -47,9 +48,9 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                   )
                 : TabBar(
                     controller: _tabController,
-                    labelColor: Colors.red,
+                    labelColor:AppColors.red,
                     unselectedLabelColor: Colors.black54,
-                    indicatorColor: Colors.red,
+                    indicatorColor:AppColors.red,
                     tabs: const [
                       Tab(text: 'Summary'),
                       Tab(text: 'Headlines'),
@@ -91,8 +92,6 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 class SummarySwiper extends StatelessWidget {
   SummarySwiper({super.key});
 
-  final SwiperController swiperController = SwiperController();
-
   @override
   Widget build(BuildContext context) {
     final itemHeight = MediaQuery.of(context).size.height;
@@ -112,30 +111,30 @@ class SummarySwiper extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Obx(() => ChoiceChip(
-                            label: Text(category),
-                            selected:
-                                controller.selectedCategory.value == category,
-                            onSelected: (bool selected) {
-                              if (selected) {
-                                controller.fetchNews(category);
-                                controller.update();
-                              }
-                            },
-                            backgroundColor: Colors.grey[200],
-                            selectedColor: Colors.red[300],
-                            labelStyle: TextStyle(
-                              color:
-                                  controller.selectedCategory.value == category
-                                      ? Colors.white
-                                      : Colors.black,
-                            ),
-                          )),
+                        label: Text(category),
+                        selected: controller.selectedCategory.value == category,
+                        onSelected: (bool selected) {
+                          if (selected) {
+                            controller.fetchNews(category);
+                            controller.update();
+                          }
+                        },
+                        backgroundColor:AppColors.offWhit,
+                        selectedColor: AppColors.red,
+                        checkmarkColor:controller.selectedCategory.value == category
+                            ? Colors.white
+                            : Colors.black,
+                        labelStyle: TextStyle(
+                          color: controller.selectedCategory.value == category
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                      )),
                     );
                   }).toList(),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
             if (controller.isLoading.value)
               const Expanded(
                 child: Center(
@@ -146,20 +145,20 @@ class SummarySwiper extends StatelessWidget {
             else
               Expanded(
                 child: Swiper(
-                  controller: swiperController,
-                  itemCount: controller.allNewsResponse!.articles.length,
+                  controller: controller.swiperController,
+                  itemCount: controller.allNewsResponse!.articles.length??0,
                   scrollDirection: Axis.vertical,
                   layout: SwiperLayout.STACK,
                   loop: true,
+                  allowImplicitScrolling: false,
                   onIndexChanged: (index) {
-                    if (index ==
-                            controller.allNewsResponse!.articles.length - 1 &&
+                    if (index == controller.allNewsResponse!.articles.length - 1 &&
                         !controller.isPaginating) {
                       controller.loadMoreNews();
                     }
                   },
-                  itemWidth: itemWidth / 1.1,
-                  itemHeight: itemHeight / 1.4,
+                  itemWidth: itemWidth / 1.15,
+                  itemHeight: itemHeight / 1.45,
                   itemBuilder: (BuildContext context, int index) {
                     var article = controller.allNewsResponse?.articles[index];
                     return Padding(
@@ -188,55 +187,51 @@ class SummarySwiper extends StatelessWidget {
                             children: [
                               article!.urlToImage != null
                                   ? Expanded(
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            const BorderRadius.vertical(
-                                                top: Radius.circular(10)),
-                                        child: Image.network(
-                                          article.urlToImage!,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (BuildContext context,
-                                              Object exception,
-                                              StackTrace? stackTrace) {
-                                            return Container(
-                                              height: 150,
-                                              color: Colors.grey[300],
-                                              child: const Center(
-                                                child: AutoSizeText(
-                                                  "Image not available",
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.grey),
-                                                ),
-                                              ),
-                                            );
-                                          },
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(10)),
+                                  child: Image.network(
+                                    article.urlToImage!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (BuildContext context,
+                                        Object exception,
+                                        StackTrace? stackTrace) {
+                                      return Container(
+                                        height: 150,
+                                        color: Colors.grey[300],
+                                        child: const Center(
+                                          child: AutoSizeText(
+                                            "Image not available",
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey),
+                                          ),
                                         ),
-                                      ),
-                                    )
+                                      );
+                                    },
+                                  ),
+                                ),
+                              )
                                   : Expanded(
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            const BorderRadius.vertical(
-                                                top: Radius.circular(10)),
-                                        child: Image.asset(
-                                          'assets/images/imageNotFound.png',
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    ),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(10)),
+                                  child: Image.asset(
+                                    'assets/images/imageNotFound.png',
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: AutoSizeText(
                                   article.title,
                                   style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                      fontSize: 18, fontWeight: FontWeight.bold),
                                 ),
                               ),
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: AutoSizeText(
                                   "By ${article.author ?? "Unknown"} - ${controller.formatDateTime(article.publishedAt)}",
                                   style: const TextStyle(
@@ -246,15 +241,13 @@ class SummarySwiper extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: AutoSizeText(
-                                  article.description ??
-                                      "No description available",
+                                  article.description ?? "No description available",
                                   style: const TextStyle(fontSize: 16),
                                 ),
                               ),
-
                               ListTile(
                                 trailing: FutureBuilder<bool>(
-                                  future: bookmarkManager.isBookmarked(article), // Use instance method
+                                  future: bookmarkManager.isBookmarked(article),
                                   builder: (context, snapshot) {
                                     if (!snapshot.hasData) {
                                       return const SizedBox.shrink();
@@ -271,9 +264,9 @@ class SummarySwiper extends StatelessWidget {
                                       ),
                                       onPressed: () async {
                                         if (isBookmarked) {
-                                          await bookmarkManager.removeBookmark(article); // Use instance method
+                                          await bookmarkManager.removeBookmark(article);
                                         } else {
-                                          await bookmarkManager.addBookmark(article); // Use instance method
+                                          await bookmarkManager.addBookmark(article);
                                         }
                                         controller.update();
                                       },
@@ -281,7 +274,6 @@ class SummarySwiper extends StatelessWidget {
                                   },
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -297,16 +289,18 @@ class SummarySwiper extends StatelessWidget {
                 padding: EdgeInsets.all(10),
                 child: Center(
                     child: SpinKitFadingCircle(
-                  color: AppColors.red,
-                  size: 50,
-                )),
+                      color: AppColors.red,
+                      size: 50,
+                    )),
               ),
+
           ],
         );
       },
     );
   }
 }
+
 
 class HeadlinesList extends StatelessWidget {
   final ScrollController _scrollController = ScrollController();
@@ -340,84 +334,130 @@ class HeadlinesList extends StatelessWidget {
                     ? const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Center(
-                      child: SpinKitFadingCircle(
-                          color: AppColors.red, size: 50)),
+                    child: SpinKitFadingCircle(
+                        color: AppColors.red, size: 50),
+                  ),
                 )
                     : const SizedBox.shrink();
               }
 
               var topArticle = controller.topHeadlinesResponse?.articles[index];
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        offset: Offset(0, 4),
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(10),
-                    leading: topArticle?.urlToImage != null
-                        ? ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        topArticle!.urlToImage!,
-                        height: 110,
-                        width: 90,
-                        fit: BoxFit.fill,
-                        errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                          return Container(
-                            height: 90,
-                            width: 90,
-                            color: Colors.grey[300],
-                            child: const Center(
-                              child: Icon(Icons.image_not_supported, size: 30, color: Colors.grey),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                child: InkWell(
+                  onTap: () {
+                    Get.toNamed(Routes.DETAILS, arguments: {
+                      'isKey': 'heading',
+                      'headingData': topArticle
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          offset: Offset(0, 4),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          child: topArticle?.urlToImage != null
+                              ? Image.network(
+                            topArticle?.urlToImage ?? '',
+                            width: 110,
+                            height: 124,
+                            fit: BoxFit.fill,
+                            errorBuilder:
+                                (context, error, stackTrace) {
+                              return Container(
+                                width: 110,
+                                height: 124,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                              : Image.asset(
+                            'assets/images/imageNotFound.png',
+                            width: 110,
+                            height: 110,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AutoSizeText(
+                                  topArticle?.title ?? 'No Title',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                AutoSizeText(
+                                  topArticle?.description ??
+                                      'No description available',
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                AutoSizeText(
+                                  topArticle?.content ??
+                                      'No available',
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-                    )
-                        : ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(
-                        'assets/images/imageNotFound.png',
-                        height: 90,
-                        width: 90,
-                        fit: BoxFit.cover,
-                      ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: AppColors.red,
+                          ),
+                          onPressed: () {
+                            Get.toNamed(Routes.DETAILS, arguments: {
+                              'isKey': 'heading',
+                              'headingData': topArticle
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                    title: AutoSizeText(
-                      topArticle!.title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.black87),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: AutoSizeText(
-                        topArticle.description ?? 'No description available',
-                        style: const TextStyle(fontSize: 13, color: Colors.black54),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.red),
-                    onTap: () {
-                      Get.toNamed(Routes.DETAILS, arguments: {
-                        'isKey': 'heading',
-                        'headingData': topArticle
-                      });
-                    },
                   ),
                 ),
               );
@@ -428,4 +468,8 @@ class HeadlinesList extends StatelessWidget {
     );
   }
 }
+
+
+
+
 

@@ -1,3 +1,4 @@
+import 'package:card_swiper/card_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
@@ -6,9 +7,12 @@ import 'package:khabar/controller/app_base_controller/app_base_conroller.dart';
 import '../model/all_news_model.dart';
 import '../model/top_headlines_model.dart';
 
+
 class HomeController extends AppBaseController {
   AllNewsResponseModel? allNewsResponse;
   TopHeadlinesResponseModel? topHeadlinesResponse;
+  final SwiperController swiperController = SwiperController();
+
   var isLoading = true.obs;
   var isTopHeadlinesLoading = true.obs;
   var selectedCategory = 'Everything'.obs;
@@ -17,20 +21,22 @@ class HomeController extends AppBaseController {
   int totalResults = 0;
   var isNewsPaginating = false.obs;
   int newsPage = 1;
-
+  var searchQuery = ''.obs;
+  var isSearching = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchNews('Everything');
     fetchTopHeadlines();
+
   }
 
 
-  var searchQuery = ''.obs;
-  var isSearching = false.obs; // To toggle between normal and search mode
 
 
+
+  /// search news Api Function--------------------------------------------------
   void searchNews(String query) async {
     try {
       isLoading(true);
@@ -54,6 +60,7 @@ class HomeController extends AppBaseController {
     }
   }
 
+  /// toggle search model-------------------------------------------------------
   void toggleSearchMode() {
     isSearching.value = !isSearching.value;
     if (!isSearching.value) {
@@ -62,15 +69,12 @@ class HomeController extends AppBaseController {
     update();
   }
 
-
-
-
-///----Time format--------------------------------------------------------
+  ///Time format----------------------------------------------------------------
   String formatDateTime(DateTime dateTime) {
     final DateFormat formatter = DateFormat('MMM dd, yyyy hh:mm a');
     return formatter.format(dateTime);
   }
-///---Categories list--------------------------------------------------------
+  ///Categories list------------------------------------------------------------
   final List<String> categories = [
     'Everything',
     'Business',
@@ -81,9 +85,7 @@ class HomeController extends AppBaseController {
     'Technology'
   ];
 
-
-/// Get All News Data here-----------------------------------------------------------
-
+  /// Get All News Data here----------------------------------------------------
   void fetchNews(String category, {bool loadMore = false}) async {
     try {
       if (loadMore) {
@@ -124,7 +126,7 @@ class HomeController extends AppBaseController {
     }
   }
 
-  /// Method to load more news--------------
+  /// Method to load more news--------------------------------------------------
   void loadMoreNews() {
     if (!isPaginating && allNewsResponse != null && allNewsResponse!.articles.length < totalResults) {
       isNewsPaginating(true);
@@ -133,8 +135,7 @@ class HomeController extends AppBaseController {
     }
   }
 
-  ///----Fetch top headlines---------------------------
-
+  ///Fetch top headlines--------------------------------------------------------
   void fetchTopHeadlines({bool loadMore = false}) async {
     try {
       if (loadMore) {
@@ -175,7 +176,7 @@ class HomeController extends AppBaseController {
     }
   }
 
-
+  /// load more headlines-------------------------------------------------------
   void loadMoreHeadlines() {
     if (!isPaginating && topHeadlinesResponse != null &&
         topHeadlinesResponse!.articles.length < totalResults) {
