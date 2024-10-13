@@ -14,9 +14,9 @@ class HomeView extends StatefulWidget {
   _HomeViewState createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView>
-    with SingleTickerProviderStateMixin {
+class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -26,32 +26,53 @@ class _HomeViewState extends State<HomeView>
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
+    return GetBuilder<HomeController>(
       init: HomeController(),
       builder: (controller) {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: AppColors.offWhit,
-            leading: const Icon(
-              Icons.dehaze_outlined,
-              color: AppColors.black,
-            ),
-            actions: const [
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: Icon(Icons.notifications, color: AppColors.black),
-              ),
+            leading: const Icon(Icons.dehaze_outlined, color: AppColors.black),
+            title: controller.isSearching.value
+                ? TextField(
+                    controller: _searchController,
+                    onSubmitted: (value) {
+                      controller.searchNews(value);
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Search news...',
+                      border: InputBorder.none,
+                    ),
+                    autofocus: true,
+                  )
+                : TabBar(
+                    controller: _tabController,
+                    labelColor: Colors.red,
+                    unselectedLabelColor: Colors.black54,
+                    indicatorColor: Colors.red,
+                    tabs: const [
+                      Tab(text: 'Summary'),
+                      Tab(text: 'Headlines'),
+                    ],
+                  ),
+            actions: [
+              controller.isSearching.value
+                  ? IconButton(
+                      icon: const Icon(Icons.close, color: AppColors.black),
+                      onPressed: () {
+                        _searchController.clear();
+                        controller.toggleSearchMode();
+                        controller.fetchNews(controller
+                            .selectedCategory.value); // Reset to category news
+                      },
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.search, color: AppColors.black),
+                      onPressed: () {
+                        controller.toggleSearchMode();
+                      },
+                    ),
             ],
-            title: TabBar(
-              controller: _tabController,
-              labelColor: Colors.red,
-              unselectedLabelColor: Colors.black54,
-              indicatorColor: Colors.red,
-              tabs: const [
-                Tab(text: 'Summary'),
-                Tab(text: 'Headlines'),
-              ],
-            ),
           ),
           body: TabBarView(
             controller: _tabController,
@@ -65,6 +86,7 @@ class _HomeViewState extends State<HomeView>
     );
   }
 }
+
 
 class SummarySwiper extends StatelessWidget {
   SummarySwiper({super.key});

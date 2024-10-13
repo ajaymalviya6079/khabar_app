@@ -2,10 +2,11 @@ import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:khabar/controller/app_base_controller/app_base_conroller.dart';
 import '../model/all_news_model.dart';
 import '../model/top_headlines_model.dart';
 
-class HomeController extends GetxController {
+class HomeController extends AppBaseController {
   AllNewsResponseModel? allNewsResponse;
   TopHeadlinesResponseModel? topHeadlinesResponse;
   var isLoading = true.obs;
@@ -24,12 +25,52 @@ class HomeController extends GetxController {
     fetchNews('Everything');
     fetchTopHeadlines();
   }
-///----Time format-------------
+
+
+  var searchQuery = ''.obs;
+  var isSearching = false.obs; // To toggle between normal and search mode
+
+
+  void searchNews(String query) async {
+    try {
+      isLoading(true);
+      searchQuery.value = query;
+
+      var response = await http.get(Uri.parse(
+          'https://newsapi.org/v2/everything?q=$query&page=1&pageSize=20&apiKey=b343f5b56a084d82b99b07bc1d147c60'));
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        var fetchedNews = AllNewsResponseModel.fromJson(data);
+        allNewsResponse = fetchedNews;
+        update();
+      } else {
+        Get.snackbar("Error", "Failed to fetch news");
+      }
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  void toggleSearchMode() {
+    isSearching.value = !isSearching.value;
+    if (!isSearching.value) {
+      searchQuery.value = '';
+    }
+    update();
+  }
+
+
+
+
+///----Time format--------------------------------------------------------
   String formatDateTime(DateTime dateTime) {
     final DateFormat formatter = DateFormat('MMM dd, yyyy hh:mm a');
     return formatter.format(dateTime);
   }
-
+///---Categories list--------------------------------------------------------
   final List<String> categories = [
     'Everything',
     'Business',
@@ -39,7 +80,6 @@ class HomeController extends GetxController {
     'Sports',
     'Technology'
   ];
-
 
 
 /// Get All News Data here-----------------------------------------------------------
@@ -92,10 +132,6 @@ class HomeController extends GetxController {
       update();
     }
   }
-
-
-
-
 
   ///----Fetch top headlines---------------------------
 
