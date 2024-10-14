@@ -7,6 +7,8 @@ import 'package:khabar/controller/app_base_controller/app_base_conroller.dart';
 import '../model/recommendation_response_model.dart';
 import 'package:http/http.dart'as http;
 
+import '../services/api_client.dart';
+
 
 
 class TopArticleController extends AppBaseController {
@@ -47,7 +49,7 @@ class TopArticleController extends AppBaseController {
       }
 
       var response = await http.get(Uri.parse(
-          'https://newsapi.org/v2/everything?q=apple&page=$recommendationPage&pageSize=20&apiKey=b343f5b56a084d82b99b07bc1d147c60'));
+          'https://newsapi.org/v2/everything?q=apple&page=$recommendationPage&pageSize=20&apiKey=${ApiClient.apiKey}'));
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);

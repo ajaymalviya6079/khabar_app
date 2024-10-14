@@ -12,9 +12,11 @@ class ApiClient extends GetConnect {
 
   ApiClient._internal();
 
+
+  static const apiKey='c8ab2617ff454a67b9366dc591b9f29d';
   static const imageUrl2= '';
   static const baseAppUrl = 'https://newsapi.org/';
-  static const getNewsUrl = 'v2/everything?q=bitcoin&page=page&pageSize=20&apiKey=b343f5b56a084d82b99b07bc1d147c60';
+  static const getNewsUrl = 'v2/everything?q=bitcoin&page=page&pageSize=20&apiKey=c8ab2617ff454a67b9366dc591b9f29d';
 
   @override
   void onInit() {
