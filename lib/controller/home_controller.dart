@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:khabar/controller/app_base_controller/app_base_conroller.dart';
+import 'package:khabar/services/api_client.dart';
 import '../model/all_news_model.dart';
 import '../model/top_headlines_model.dart';
 
@@ -43,7 +44,7 @@ class HomeController extends AppBaseController {
       searchQuery.value = query;
 
       var response = await http.get(Uri.parse(
-          'https://newsapi.org/v2/everything?q=$query&page=1&pageSize=20&apiKey=b343f5b56a084d82b99b07bc1d147c60'));
+          'https://newsapi.org/v2/everything?q=$query&page=1&pageSize=20&apiKey=${ApiClient.apiKey}'));
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
@@ -98,7 +99,7 @@ class HomeController extends AppBaseController {
 
       var queryParam = category == 'Everything' ? 'bitcoin' : category.toLowerCase();
       var response = await http.get(Uri.parse(
-          'https://newsapi.org/v2/everything?q=$queryParam&page=$newsPage&pageSize=20&apiKey=b343f5b56a084d82b99b07bc1d147c60'));
+          'https://newsapi.org/v2/everything?q=$queryParam&page=$newsPage&pageSize=20&apiKey=${ApiClient.apiKey}'));
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
@@ -149,7 +150,7 @@ class HomeController extends AppBaseController {
 
 
       var response = await http.get(Uri.parse(
-          'https://newsapi.org/v2/top-headlines?country=us&page=$page&pageSize=20&apiKey=b343f5b56a084d82b99b07bc1d147c60'));
+          'https://newsapi.org/v2/top-headlines?country=us&page=$page&pageSize=20&apiKey=${ApiClient.apiKey}'));
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
