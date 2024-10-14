@@ -65,7 +65,7 @@ class DetailView extends StatelessWidget {
                 AutoSizeText(
                   articleData?.title ?? "No title available",
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -78,10 +78,25 @@ class DetailView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const CircleAvatar(
+                        backgroundColor:AppColors.red ,
+                        child: Center(child: Text('News',style: TextStyle(color:AppColors.whit,fontSize:11),))),
+                    const SizedBox(width: 20,),
+                    AutoSizeText(
+                      articleData.source.name,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 AutoSizeText(
                   articleData?.description ?? "No description available",
                   style: const TextStyle(fontSize: 16),
                 ),
+
+
                 const Spacer(),
                 ElevatedButton(
                   onPressed: articleData?.url != null
